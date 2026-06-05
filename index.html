@@ -3,106 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HiroForge · Florian — Pont</title>
+<meta http-equiv="refresh" content="0; url=https://weekly-dental-sent-brunswick.trycloudflare.com/">
+<title>HiroForge</title>
 <style>
-  :root{--encre:#23221A;--creme:#F7F4EC;--or:#E0C373;--olive:#4C5726;--ambre:#B07D2A;}
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%}
-  body{font-family:"Segoe UI",-apple-system,Roboto,Helvetica,Arial,sans-serif;background:var(--encre);color:var(--creme);display:flex;flex-direction:column;align-items:center;}
-  .wrap{width:100%;max-width:840px;display:flex;flex-direction:column;height:100vh;padding:0 14px;}
-  header{display:flex;align-items:center;gap:12px;padding:18px 6px 14px;border-bottom:1px solid rgba(224,195,115,.25);}
-  .mono{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border:2px solid var(--or);border-radius:10px;color:var(--or);font-weight:800;}
-  header h1{font-size:17px;font-weight:700}
-  header .st{margin-left:auto;font-size:12px;color:#bdb7a6;display:flex;align-items:center;gap:7px}
-  .dot{width:9px;height:9px;border-radius:50%;background:#7a7461}
-  .dot.on{background:#5fae54}
-  #log{flex:1;overflow-y:auto;padding:18px 4px;display:flex;flex-direction:column;gap:10px}
-  .msg{max-width:78%;padding:10px 14px;border-radius:14px;font-size:14.5px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
-  .me{align-self:flex-end;background:#3a3830;border:1px solid rgba(224,195,115,.18)}
-  .them{align-self:flex-start;background:#2c2b22;border-left:3px solid var(--olive)}
-  .who{display:block;font-size:11.5px;font-weight:700;color:var(--or);margin-bottom:3px}
-  form{display:flex;gap:8px;padding:12px 4px 18px;border-top:1px solid rgba(224,195,115,.25)}
-  textarea{flex:1;resize:none;background:#2c2b22;color:var(--creme);border:1px solid rgba(224,195,115,.2);border-radius:12px;padding:11px 14px;font:inherit;font-size:14.5px;max-height:120px}
-  textarea:focus{outline:none;border-color:var(--or)}
-  button{background:var(--or);color:var(--encre);border:none;border-radius:12px;padding:0 20px;font-weight:700;cursor:pointer}
-  button:disabled{opacity:.5;cursor:default}
-  .sys{align-self:center;font-size:12px;color:#9a937f;font-style:italic}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+       font-family:"Segoe UI",Arial,sans-serif;background:#23221A;color:#F7F4EC;text-align:center}
+  a{color:#E0C373}
+  .mono{display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;
+        border:2px solid #E0C373;border-radius:12px;color:#E0C373;font-weight:800;margin-bottom:14px}
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <span class="mono">HF</span>
-      <h1>Pont HiroForge · Florian</h1>
-      <span class="st"><span class="dot" id="dot"></span><span id="ststx">connexion…</span></span>
-    </header>
-    <div id="log"></div>
-    <form id="f">
-      <textarea id="t" rows="1" placeholder="Écris à l'équipe HiroForge…" autocomplete="off"></textarea>
-      <button id="send" type="submit">Envoyer</button>
-    </form>
+  <div>
+    <div class="mono">HF</div>
+    <p>Un instant…</p>
+    <p><a href="https://weekly-dental-sent-brunswick.trycloudflare.com/">Continuer</a></p>
   </div>
-
-<script>
-  // ── Configuration ──────────────────────────────────────────────────────────
-  // URL du backend (pont), exposé via un TUNNEL sur un domaine HiroForge autorisé
-  // (PAS ngrok-free). À renseigner une fois le tunnel monté.
-  const BASE_URL = "https://REMPLACER-PAR-LE-DOMAINE-HIROFORGE";
-  // ───────────────────────────────────────────────────────────────────────────
-
-  const log = document.getElementById('log');
-  const dot = document.getElementById('dot');
-  const stx = document.getElementById('ststx');
-  const ta  = document.getElementById('t');
-  const btn = document.getElementById('send');
-  let since = 0;
-  const seen = new Set();
-
-  function add(m){
-    if (m.id){ if (seen.has(m.id)) return; seen.add(m.id); }
-    const mine = (m.from === 'florian-humain');
-    const el = document.createElement('div');
-    el.className = 'msg ' + (mine ? 'me' : 'them');
-    if (!mine){ const w = document.createElement('span'); w.className='who'; w.textContent = m.presentation || m.from; el.appendChild(w); }
-    el.appendChild(document.createTextNode(m.text || ''));
-    log.appendChild(el);
-    log.scrollTop = log.scrollHeight;
-  }
-  function sys(t){ const e=document.createElement('div'); e.className='sys'; e.textContent=t; log.appendChild(e); log.scrollTop=log.scrollHeight; }
-
-  async function poll(){
-    try{
-      const r = await fetch(`${BASE_URL}/human/messages?since=${since}`, { headers:{'ngrok-skip-browser-warning':'1'} });
-      if (!r.ok) throw new Error(r.status);
-      const j = await r.json();
-      (j.messages||[]).forEach(m => { add(m); const t=Date.parse(m.heure); if(t>since) since=t; });
-      dot.classList.add('on'); stx.textContent='en ligne';
-    }catch(e){ dot.classList.remove('on'); stx.textContent='hors-ligne'; }
-  }
-
-  async function send(text){
-    btn.disabled = true;
-    try{
-      const r = await fetch(`${BASE_URL}/human/send`, {
-        method:'POST', headers:{'Content-Type':'application/json','ngrok-skip-browser-warning':'1'},
-        body: JSON.stringify({ text })
-      });
-      if(!r.ok) throw new Error(r.status);
-    }catch(e){ sys('⚠️ envoi impossible — vérifie la connexion au pont.'); }
-    btn.disabled = false;
-  }
-
-  document.getElementById('f').addEventListener('submit', e => {
-    e.preventDefault();
-    const v = ta.value.trim(); if(!v) return;
-    ta.value=''; ta.style.height='auto';
-    send(v);
-  });
-  ta.addEventListener('input', ()=>{ ta.style.height='auto'; ta.style.height=Math.min(ta.scrollHeight,120)+'px'; });
-  ta.addEventListener('keydown', e => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); document.getElementById('f').requestSubmit(); }});
-
-  sys('Bienvenue Florian — tu es connecté à l\'équipe HiroForge via le pont.');
-  poll(); setInterval(poll, 2000);
-</script>
 </body>
 </html>
